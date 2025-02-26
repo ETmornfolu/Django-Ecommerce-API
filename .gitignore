@@ -1,0 +1,42 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.env/
+env/
+*.venv
+Pipfile
+Pipfile.lock
+
+# Django-related
+*.log
+db.sqlite3
+db.sqlite3-journal
+/media/
+staticfiles/
+static/
+
+# Ignore migrations (optional, if you don’t want to track them initially)
+**/migrations/*.py
+!**/migrations/__init__.py
+
+# Ignore sensitive data
+.env
+config/settings/local.py
+config/settings/*.local.py
+secrets.json
+
+# VS Code
+.vscode/
+
+# JetBrains (PyCharm)
+.idea/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
