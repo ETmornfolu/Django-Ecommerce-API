@@ -50,8 +50,7 @@ class UserViewset(viewsets.ModelViewSet):
 
 # class UpdateUserviewSet(viewsets.ModelViewSet):
 #     serializer_class=UpdateUserSerializer
-#     permission_classes=[IsAuthenticate
-      
+#     permission_classes=[IsAuthenticate      
 
 
 class RegisterView(APIView):
