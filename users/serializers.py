@@ -15,6 +15,11 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model=UserProfile
         fields=['username','first_name','last_name','email','password','role','nationality']
+        
+    def validate_role(self,value):
+        if value=='admin':
+            raise serializers.ValidationError("You cannot register as an admin")
+        return value
      
     def create(self,validated_data):
         user=UserProfile.objects.create_user(

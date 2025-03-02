@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.decorators import action
+
 # from rest_framework.generics import GenericAPIView, CreateAPIView
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -12,10 +13,9 @@ from .serializers import (
     LoginSerializer,
     PasswordResetSerializer,
     UpdateUserSerializer,
-    
 )
 from core.permissions import IsAdmin, IsBuyer, IsSeller
-from rest_framework.permissions import IsAuthenticated, IsAdminUser,AllowAny
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.filters import OrderingFilter
@@ -27,7 +27,8 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.conf import settings
 from celery_tasks.tasks import send_email_reset_password
-from drf_spectacular.utils import extend_schema,OpenApiParameter
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+import datetime
 
 
 # Create your views here.
@@ -35,63 +36,115 @@ from drf_spectacular.utils import extend_schema,OpenApiParameter
 
 class UserViewset(viewsets.ModelViewSet):
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated,IsAdminUser]
+    permission_classes = [IsAuthenticated, IsAdminUser]
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_fields = ["role", "nationality"]
     ordering_fields = ["date_joined", "email"]
-    
+
     def get_queryset(self):
-        return UserProfile.objects.all().only('id','email','first_name','last_name','role')
-    
+        return UserProfile.objects.all().only(
+            "id", "email", "first_name", "last_name", "role"
+        )
+
     @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
     def user(self, request):
-        serializer=self.get_serializer(request.user)
+        serializer = self.get_serializer(request.user)
         return Response(serializer.data)
+
 
 # class UpdateUserviewSet(viewsets.ModelViewSet):
 #     serializer_class=UpdateUserSerializer
-#     permission_classes=[IsAuthenticate      
+#     permission_classes=[IsAuthenticate
 
 
 class RegisterView(APIView):
-    seriailzer_class=RegisterSerializer
-    permission_classes=[AllowAny]
-    
-    @extend_schema(request=RegisterSerializer,responses={200: None})
+    serializer_class = RegisterSerializer
+    permission_classes = [AllowAny]
+
+    @extend_schema(request=RegisterSerializer, responses={200: None})
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
             refresh = RefreshToken.for_user(user)
-            return Response(
-                {"refresh": str(refresh), "access": str(refresh.access_token)},
+            access_token = str(refresh.access_token)
+            response = Response(
+                {
+                    "message": "User generated succesfully",
+                    "user": {
+                        "username": user.username,
+                        "email": user.email,
+                        "role":user.role,
+                    }
+                },
                 status=status.HTTP_201_CREATED,
             )
-        
-        print("❌ Serializer Errors:", serializer.errors)
-        
+            response.set_cookie(
+                key=settings.SIMPLE_JWT["AUTH_COOKIE"],
+                value=access_token,
+                httponly=True,
+                secure=settings.SIMPLE_JWT["AUTH_COOKIE_SECURE"],
+                samesite=settings.SIMPLE_JWT["AUTH_COOKIE_SAMESITE"],
+                expires=datetime.datetime.utcnow() + settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"],
+            )
+            
+            response.set_cookie(
+                key=settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH"],
+                value=str(refresh),
+                httponly=True,
+                secure=settings.SIMPLE_JWT["AUTH_COOKIE_SECURE"],
+                samesite=settings.SIMPLE_JWT["AUTH_COOKIE_SAMESITE"],
+                expires=datetime.datetime.utcnow() + settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"],
+            )
+            return response
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LoginView(APIView):
-    serializer_class=LoginSerializer
-    permission_classes=[AllowAny]
-    
-    @extend_schema(request=LoginSerializer,responses={200:None})
+    serializer_class = LoginSerializer
+    permission_classes = [AllowAny]
+
+    @extend_schema(request=LoginSerializer, responses={200: None})
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.validated_data
             refresh = RefreshToken.for_user(user)
-            return Response(
-                {"refresh": str(refresh), "access": str(refresh.access_token)},
-                status=status.HTTP_200_OK,
+            access_token=str(refresh.access_token)
+            response = Response(
+                {
+                    "message": "User Logged-in successfully",
+                    "user": {
+                        "username": user.username,
+                        "email": user.email,
+                        "role":user.role,
+                    }
+                },
+                status=status.HTTP_201_CREATED,
             )
+            response.set_cookie(
+                key=settings.SIMPLE_JWT["AUTH_COOKIE"],
+                value=access_token,
+                httponly=True,
+                secure=settings.SIMPLE_JWT["AUTH_COOKIE_SECURE"],
+                samesite=settings.SIMPLE_JWT["AUTH_COOKIE_SAMESITE"],
+                expires=datetime.datetime.utcnow() + settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"],
+            )
+            
+            response.set_cookie(
+                key=settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH"],
+                value=str(refresh),
+                httponly=True,
+                secure=settings.SIMPLE_JWT["AUTH_COOKIE_SECURE"],
+                samesite=settings.SIMPLE_JWT["AUTH_COOKIE_SAMESITE"],
+                expires=datetime.datetime.utcnow() + settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"],
+            )
+            return response
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LogoutView(APIView):
-    
+
     @extend_schema(exclude=True)
     def post(self, request):
         try:
@@ -110,9 +163,9 @@ def generate_reset_link(user):
 
 
 class ResetPasswordView(APIView):
-    serializer_class=PasswordResetSerializer
-    
-    @extend_schema(request=PasswordResetSerializer,responses={200:None})
+    serializer_class = PasswordResetSerializer
+
+    @extend_schema(request=PasswordResetSerializer, responses={200: None})
     def post(self, request):
         serializer = PasswordResetSerializer(data=request.data)
         if serializer.is_valid():
@@ -129,11 +182,11 @@ class ResetPasswordView(APIView):
 
 
 class ConfirmResetPassswordView(APIView):
-    
+
     @extend_schema(
         parameters=[
-            OpenApiParameter(name='uidb64', type=str, location=OpenApiParameter.PATH),
-            OpenApiParameter(name='token', type=str, location=OpenApiParameter.PATH),
+            OpenApiParameter(name="uidb64", type=str, location=OpenApiParameter.PATH),
+            OpenApiParameter(name="token", type=str, location=OpenApiParameter.PATH),
         ]
     )
     def post(self, request, uidb64, token):
