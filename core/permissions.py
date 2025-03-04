@@ -6,7 +6,12 @@ class IsBuyer(BasePermission):
 
 class IsSeller(BasePermission):
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.role=='seller'
+        # Only sellers can create products
+        return request.user.role == 'seller'
+
+    def has_object_permission(self, request, view, obj):
+        # Only the owner (seller) can update or delete the product
+        return obj.owner == request.user
 
 class IsAdmin(BasePermission):
     def has_permission(self, request, view):
