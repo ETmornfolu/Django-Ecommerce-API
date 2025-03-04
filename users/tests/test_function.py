@@ -42,3 +42,5 @@ def test_user_login(client,create_user):
     assert response.data['email']=='testuser@example.com'
     
     
+    
+    

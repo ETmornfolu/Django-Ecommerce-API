@@ -29,7 +29,7 @@ from django.conf import settings
 from celery_tasks.tasks import send_email_reset_password
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 import datetime
-
+from core.utils import set_auth_cookie
 
 # Create your views here.
 
@@ -52,11 +52,6 @@ class UserViewset(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-# class UpdateUserviewSet(viewsets.ModelViewSet):
-#     serializer_class=UpdateUserSerializer
-#     permission_classes=[IsAuthenticate
-
-
 class RegisterView(APIView):
     serializer_class = RegisterSerializer
     permission_classes = [AllowAny]
@@ -74,27 +69,23 @@ class RegisterView(APIView):
                     "user": {
                         "username": user.username,
                         "email": user.email,
-                        "role":user.role,
-                    }
+                        "role": user.role,
+                    },
                 },
                 status=status.HTTP_201_CREATED,
             )
-            response.set_cookie(
-                key=settings.SIMPLE_JWT["AUTH_COOKIE"],
-                value=access_token,
-                httponly=True,
-                secure=settings.SIMPLE_JWT["AUTH_COOKIE_SECURE"],
-                samesite=settings.SIMPLE_JWT["AUTH_COOKIE_SAMESITE"],
-                expires=datetime.datetime.utcnow() + settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"],
+
+            set_auth_cookie(
+                response,
+                settings.SIMPLE_JWT["AUTH_COOKIE"],
+                access_token,
+                settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"],
             )
-            
-            response.set_cookie(
-                key=settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH"],
-                value=str(refresh),
-                httponly=True,
-                secure=settings.SIMPLE_JWT["AUTH_COOKIE_SECURE"],
-                samesite=settings.SIMPLE_JWT["AUTH_COOKIE_SAMESITE"],
-                expires=datetime.datetime.utcnow() + settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"],
+            set_auth_cookie(
+                response,
+                settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH"],
+                str(refresh),
+                settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"],
             )
             return response
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -110,34 +101,29 @@ class LoginView(APIView):
         if serializer.is_valid():
             user = serializer.validated_data
             refresh = RefreshToken.for_user(user)
-            access_token=str(refresh.access_token)
+            access_token = str(refresh.access_token)
             response = Response(
                 {
                     "message": "User Logged-in successfully",
                     "user": {
                         "username": user.username,
                         "email": user.email,
-                        "role":user.role,
-                    }
+                        "role": user.role,
+                    },
                 },
                 status=status.HTTP_201_CREATED,
             )
-            response.set_cookie(
-                key=settings.SIMPLE_JWT["AUTH_COOKIE"],
-                value=access_token,
-                httponly=True,
-                secure=settings.SIMPLE_JWT["AUTH_COOKIE_SECURE"],
-                samesite=settings.SIMPLE_JWT["AUTH_COOKIE_SAMESITE"],
-                expires=datetime.datetime.utcnow() + settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"],
+            set_auth_cookie(
+                response,
+                settings.SIMPLE_JWT["AUTH_COOKIE"],
+                access_token,
+                settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"],
             )
-            
-            response.set_cookie(
-                key=settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH"],
-                value=str(refresh),
-                httponly=True,
-                secure=settings.SIMPLE_JWT["AUTH_COOKIE_SECURE"],
-                samesite=settings.SIMPLE_JWT["AUTH_COOKIE_SAMESITE"],
-                expires=datetime.datetime.utcnow() + settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"],
+            set_auth_cookie(
+                response,
+                settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH"],
+                str(refresh),
+                settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"],
             )
             return response
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -147,13 +133,12 @@ class LogoutView(APIView):
 
     @extend_schema(exclude=True)
     def post(self, request):
-        try:
-            refresh_token = request.data["refresh"]
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-            return Response(status=status.HTTP_205_RESET_CONTENT)
-        except Exception as e:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        response = Response(
+            {"message": "Logged out successfully"}, status=status.HTTP_200_OK
+        )
+        response.delete_cookie(settings.SIMPLE_JWT["AUTH_COOKIE"])
+        response.delete_cookie(settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH"])
+        return response
 
 
 def generate_reset_link(user):
