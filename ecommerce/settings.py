@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "cloudinary_storage",
     "drf_spectacular",
     "drf_spectacular_sidecar",
+    "graphene_django",
     # CUSTOM APPS
     "core",
     "admin_panel",
