@@ -17,7 +17,7 @@ urlpatterns = [
     path("api/redocs/", SpectacularRedocView.as_view(url_name="schema"), name="redocs"),
     path("api/auth/", include("users.urls")),
     path('api/products/', include("products.urls")),
-    # path('api/orders/', include('orders.urls')),
+    path('api/orders/', include('orders.urls')),
     # path('api/payments/', include('payments.urls')),
     # path('api/admin_panel/',include('admin_panel.urls')),
     # path('ws/',include('websockets.routing')),

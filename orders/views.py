@@ -12,6 +12,7 @@ class CartViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
 
+
 class OrderViewSet(viewsets.ModelViewSet):
     queryset=Order.objects.all()
     permission_classes=[IsAuthenticated,IsBuyer]

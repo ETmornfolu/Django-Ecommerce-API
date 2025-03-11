@@ -22,11 +22,11 @@ class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [AllowAny]
-    filter_backends = [DjangoFilterBackend, OrderingFilter]  # Add filters
+    filter_backends = [DjangoFilterBackend]  # Add filters
     filterset_fields = [
         "category",
     ]  # Fields to filter by
-    ordering_fields = ["created_at"]
+    # ordering_fields = ["created_at"]
 
     def get_queryset(self):
         queryset = Product.objects.all()
