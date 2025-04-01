@@ -167,7 +167,6 @@ class ResetPasswordView(APIView):
 
 
 class ConfirmResetPassswordView(APIView):
-
     @extend_schema(
         parameters=[
             OpenApiParameter(name="uidb64", type=str, location=OpenApiParameter.PATH),
