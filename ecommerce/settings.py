@@ -20,8 +20,8 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 
-env=environ.Env()
-environ.Env.read_env(os.path.join(BASE_DIR,".env"))
+env = environ.Env()
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
 CLOUDINARY_STORAGE = {
     "CLOUD_NAME": env("CLOUDINARY_CLOUD_NAME"),
@@ -39,9 +39,16 @@ DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool("DEBUG",default=False)
+DEBUG = env.bool("DEBUG", default=False)
 
-ALLOWED_HOSTS = ["*"]
+# settings.py
+
+ALLOWED_HOSTS = [
+    "django-ecommerce-backend.up.railway.app",  # Replace with your actual Railway app domain
+    "127.0.0.1",  # Localhost (for local development)
+    "localhost",  # Local development (optional)
+]
+
 
 # Application definition
 
@@ -83,7 +90,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "users.middleware.JWTAuthMiddleware"
+    "users.middleware.JWTAuthMiddleware",
 ]
 
 ROOT_URLCONF = "ecommerce.urls"
@@ -116,21 +123,19 @@ import dj_database_url
 # Database configuration
 if DEBUG:  # Local development (SQLite)
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
         }
     }
 else:  # Production (NeonDB)
     DATABASES = {
-        'default': dj_database_url.config(
+        "default": dj_database_url.config(
             default=env("DATABASE_URL"),
             conn_max_age=600,
             ssl_require=True,
         )
     }
-    
-
 
 
 # Password validation
@@ -182,8 +187,6 @@ REST_FRAMEWORK = {
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
-
-
 
 
 # SimpleJWT settings
