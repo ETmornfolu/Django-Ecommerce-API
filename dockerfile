@@ -1,21 +1,32 @@
-# Use an official Python image with the correct version
-FROM python:3.10  
+# Use official Python base image
+FROM python:3.11-slim
 
 # Set environment variables
-ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
-# Set working directory
+# Set work directory
 WORKDIR /app
 
-# Copy requirements and install dependencies
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Copy the entire Django project
+# Copy project files
 COPY . .
 
-# Expose port 8000
+# Collect static files
+RUN python manage.py collectstatic --noinput
+
+# Expose port for app
 EXPOSE 8000
 
-# Run Gunicorn to start the Django app
-CMD ["gunicorn", "ecommerce.wsgi", "--bind", "0.0.0.0:8000"]
+# Start server with Gunicorn
+CMD ["gunicorn", "ecommerce.wsgi:application", "--bind", "0.0.0.0:8000"]
+
