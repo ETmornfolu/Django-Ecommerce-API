@@ -120,22 +120,23 @@ WSGI_APPLICATION = "ecommerce.wsgi.application"
 
 import dj_database_url
 
-# Database configuration
-if DEBUG:  # Local development (SQLite)
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
-        }
-    }
-else:  # Production (NeonDB)
-    DATABASES = {
-        "default": dj_database_url.config(
-            default=env("DATABASE_URL"),
-            conn_max_age=600,
-            ssl_require=True,
-        )
-    }
+# # Database configuration
+# if DEBUG:  # Local development (SQLite)
+#     DATABASES = {
+#         "default": {
+#             "ENGINE": "django.db.backends.sqlite3",
+#             "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+#         }
+#     }
+# else:  # Production (NeonDB)
+
+DATABASES = {
+    "default": dj_database_url.config(
+        default=env("DATABASE_URL"),
+        conn_max_age=600,
+        ssl_require=True,
+    )
+}
 
 
 # Password validation
