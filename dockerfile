@@ -1,11 +1,11 @@
-# Use official Python base image
+
 FROM python:3.11-slim
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-# Set work directory
+# Set working directory
 WORKDIR /app
 
 # Install system dependencies
@@ -21,12 +21,12 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 # Copy project files
 COPY . .
 
-# Collect static files
-RUN python manage.py collectstatic --noinput
+# Copy and make the entrypoint script executable
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
-# Expose port for app
+# Expose port
 EXPOSE 8000
 
-# Start server with Gunicorn
-CMD ["gunicorn", "ecommerce.wsgi:application", "--bind", "0.0.0.0:8000"]
-
+# Use entrypoint script
+ENTRYPOINT ["/app/entrypoint.sh"]
