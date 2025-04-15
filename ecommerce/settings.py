@@ -23,6 +23,8 @@ load_dotenv()
 env = environ.Env()
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
+DEBUG = env.bool("DEBUG", default=False)
+
 CLOUDINARY_STORAGE = {
     "CLOUD_NAME": env("CLOUDINARY_CLOUD_NAME"),
     "API_KEY": env("CLOUDINARY_API_KEY"),
@@ -39,7 +41,7 @@ DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool("DEBUG", default=False)
+
 
 # settings.py
 
@@ -120,7 +122,7 @@ WSGI_APPLICATION = "ecommerce.wsgi.application"
 
 import dj_database_url
 
-# # Database configuration
+# Database configuration
 # if DEBUG:  # Local development (SQLite)
 #     DATABASES = {
 #         "default": {
@@ -129,14 +131,26 @@ import dj_database_url
 #         }
 #     }
 # else:  # Production (NeonDB)
+#     DATABASES = {
+#         "default": dj_database_url.config(
+#             default=env("DATABASE_URL"),
+#             conn_max_age=600,
+#             ssl_require=True,
+#         )
+#     }
+    
+if DEBUG:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+        }
+    }
+else:
+    DATABASES = {
+        "default": env.db("DATABASE_URL")
+    }
 
-DATABASES = {
-    "default": dj_database_url.config(
-        default=env("DATABASE_URL"),
-        conn_max_age=600,
-        ssl_require=True,
-    )
-}
 
 
 # Password validation
