@@ -139,14 +139,11 @@ if DEBUG:  # Local development (SQLite)
     }
 else:  # Production (NeonDB)
     DATABASES = {
-    'default': {
-    'ENGINE': 'django.db.backends.postgresql',
-    'NAME': tmpPostgres.path.replace('/', ''),
-    'USER': tmpPostgres.username,
-    'PASSWORD': tmpPostgres.password,
-    'HOST': tmpPostgres.hostname,
-    'PORT': 5432,
-}
+    'default': dj_database_url.config(
+        default=env('DATABASE_URL'),
+        conn_max_age=600,  # optional: for persistent connections
+        ssl_require=True
+    )
 }
     
 # if DEBUG:
