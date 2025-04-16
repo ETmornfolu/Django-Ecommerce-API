@@ -15,6 +15,13 @@ from datetime import timedelta
 import os
 import environ
 from dotenv import load_dotenv
+# Add these at the top of your settings.py
+
+from urllib.parse import urlparse
+
+# Replace the DATABASES section of your settings.py with this
+tmpPostgres = urlparse(os.getenv("DATABASE_URL"))
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -148,8 +155,15 @@ if DEBUG:
     }
 else:
     DATABASES = {
-        "default": env.db("DATABASE_URL")
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': tmpPostgres.path.replace('/', ''),
+        'USER': tmpPostgres.username,
+        'PASSWORD': tmpPostgres.password,
+        'HOST': tmpPostgres.hostname,
+        'PORT': 5432,
     }
+}
 
 
 
