@@ -139,12 +139,13 @@ if DEBUG:  # Local development (SQLite)
     }
 else:  # Production (NeonDB)
     DATABASES = {
-    'default': dj_database_url.config(
-        default=env('DATABASE_URL'),
-        conn_max_age=600,  # optional: for persistent connections
-        ssl_require=True
-    )
-}
+        'default': dj_database_url.config(
+            default=os.getenv("DATABASE_URL"),
+            conn_max_age=600,
+            ssl_require=True
+        )
+    }
+
     
 # if DEBUG:
 #     DATABASES = {
