@@ -17,10 +17,10 @@ import environ
 from dotenv import load_dotenv
 # Add these at the top of your settings.py
 
-from urllib.parse import urlparse
+# from urllib.parse import urlparse
 
-# Replace the DATABASES section of your settings.py with this
-tmpPostgres = urlparse(os.getenv("DATABASE_URL"))
+# # Replace the DATABASES section of your settings.py with this
+# tmpPostgres = urlparse(os.getenv("DATABASE_URL"))
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -130,40 +130,40 @@ WSGI_APPLICATION = "ecommerce.wsgi.application"
 import dj_database_url
 
 # Database configuration
-# if DEBUG:  # Local development (SQLite)
-#     DATABASES = {
-#         "default": {
-#             "ENGINE": "django.db.backends.sqlite3",
-#             "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
-#         }
-#     }
-# else:  # Production (NeonDB)
-#     DATABASES = {
-#         "default": dj_database_url.config(
-#             default=env("DATABASE_URL"),
-#             conn_max_age=600,
-#             ssl_require=True,
-#         )
-#     }
-    
-if DEBUG:
+if DEBUG:  # Local development (SQLite)
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
         }
     }
-else:
+else:  # Production (NeonDB)
     DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': tmpPostgres.path.replace('/', ''),
-        'USER': tmpPostgres.username,
-        'PASSWORD': tmpPostgres.password,
-        'HOST': tmpPostgres.hostname,
-        'PORT': 5432,
+        "default": dj_database_url.config(
+            default=env("DATABASE_URL"),
+            conn_max_age=600,
+            ssl_require=True,
+        )
     }
-}
+    
+# if DEBUG:
+#     DATABASES = {
+#         "default": {
+#             "ENGINE": "django.db.backends.sqlite3",
+#             "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+#         }
+#     }
+# else:
+# DATABASES = {
+# 'default': {
+#     'ENGINE': 'django.db.backends.postgresql',
+#     'NAME': tmpPostgres.path.replace('/', ''),
+#     'USER': tmpPostgres.username,
+#     'PASSWORD': tmpPostgres.password,
+#     'HOST': tmpPostgres.hostname,
+#     'PORT': 5432,
+# }
+# }
 
 
 
