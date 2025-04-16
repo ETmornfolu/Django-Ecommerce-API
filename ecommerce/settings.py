@@ -17,10 +17,10 @@ import environ
 from dotenv import load_dotenv
 # Add these at the top of your settings.py
 
-from urllib.parse import urlparse
+# from urllib.parse import urlparse
 
-# Replace the DATABASES section of your settings.py with this
-tmpPostgres = urlparse(os.getenv("DATABASE_URL"))
+# # Replace the DATABASES section of your settings.py with this
+# tmpPostgres = urlparse(os.getenv("DATABASE_URL"))
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
