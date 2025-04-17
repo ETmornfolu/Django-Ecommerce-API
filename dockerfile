@@ -27,8 +27,9 @@ COPY . .
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
+# Expose the port Gunicorn will run on
+EXPOSE 8000
 
-# Default command
-CMD ["gunicorn", "ecommerce.wsgi:application", "--bind", "0.0.0.0:8000"]
-
+# Set entrypoint and default command
 ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["gunicorn", "ecommerce.wsgi:application", "--bind", "0.0.0.0:8000"]
