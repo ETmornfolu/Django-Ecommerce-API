@@ -19,9 +19,9 @@ db.sqlite3-journal
 staticfiles/
 static/
 
-# Ignore migrations (optional, if you don’t want to track them initially)
-**/migrations/*.py
-!**/migrations/__init__.py
+# # Ignore migrations (optional, if you don’t want to track them initially)
+# **/migrations/*.py
+# !**/migrations/__init__.py
 
 # Ignore sensitive data
 .env
