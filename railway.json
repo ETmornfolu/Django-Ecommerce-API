@@ -1,9 +1,9 @@
 {
     "build": {
       "builder": "DOCKERFILE",
-      "dockerfilePath": "./Dockerfile",
+      "dockerfilePath": "./dockerfile",
       "watchPatterns": [
-        "Dockerfile",
+        "dockerfile",
         "requirements.txt",
         "src/**",
         "manage.py",
