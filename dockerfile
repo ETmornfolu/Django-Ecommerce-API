@@ -26,8 +26,9 @@ COPY . .
 # Copy and set entrypoint
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
-ENTRYPOINT ["/app/entrypoint.sh"]
+
 
 # Default command
 CMD ["gunicorn", "ecommerce.wsgi:application", "--bind", "0.0.0.0:8000"]
 
+ENTRYPOINT ["/app/entrypoint.sh"]
