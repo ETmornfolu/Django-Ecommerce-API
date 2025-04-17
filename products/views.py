@@ -17,7 +17,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
             return [IsAuthenticated(), IsAdmin(), IsSeller()]
         return [AllowAny()]
 
-
+#file
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
