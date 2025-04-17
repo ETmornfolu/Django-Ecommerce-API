@@ -1,12 +1,15 @@
 #!/bin/sh
 
-echo "Applying database migrations..."
+set -e  # Exit on any error
+
+echo "🚀 Running Django migrations..."
 python manage.py migrate --noinput
 
-echo "Collecting static files..."
+echo "📦 Collecting static files..."
 python manage.py collectstatic --noinput
 
-echo "Starting server..."
-gunicorn ecommerce.wsgi:application --bind 0.0.0.0:8000
+echo "✅ Entrypoint tasks complete. Starting server..."
+exec "$@"
+
 
 
