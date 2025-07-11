@@ -53,9 +53,9 @@ SECRET_KEY = env("DJANGO_SECRET_KEY")
 # settings.py
 
 ALLOWED_HOSTS = [
-    "django-ecommerce-api-l3d8.onrender.com",  # Replace with your actual Railway app domain
-    "127.0.0.1",  # Localhost (for local development)
-    "localhost",  # Local development (optional)
+    "django-ecommerce-api-l3d8.onrender.com",  
+    "127.0.0.1",  
+    "localhost",  
 ]
 
 
