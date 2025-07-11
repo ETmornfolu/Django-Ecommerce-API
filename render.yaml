@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: django_ecommerce_store
+    env: docker
+    plan: free
+    branch: main
+    dockerContext: .
+    dockerfilePath: Dockerfile
